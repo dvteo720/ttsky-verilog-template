@@ -31,9 +31,8 @@ jobs:
       - name: Instaleaza LibreLane
         run: python3 -m pip install --upgrade librelane
 
-      - name: Ruleaza flow-ul complet (dockerized - Docker e deja pe runner)
-        working-directory: custom-asic
-        run: librelane --dockerized config.json
+      - name: Ruleaza flow-ul complet (Docker Bypass fara TTY)
+        run: docker run --rm -v ${{ github.workspace }}:/work -w /work/custom-asic ghcr.io/librelane/librelane:3.0.4 librelane config.json
 
       - name: Urca GDSII + rapoarte de semnare ca artifact
         if: always()
