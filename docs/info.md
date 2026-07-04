@@ -18,3 +18,9 @@ Explain how to use your project
 ## External hardware
 
 List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+
+## How it works
+This is a custom PLD design with 512 Logic Elements.
+
+## How to test
+Connect inputs to the specified pins and observe the outputs.
