@@ -1,0 +1,62 @@
+{
+  "//": "Config LibreLane pentru chip custom (Cadence/SkyWater MPW sau orice",
+  "//": "alt shuttle sky130) - NU pentru Tiny Tapeout. Pornit de la config.json-ul",
+  "//": "TT original, cu setarile specifice harness-ului TT scoase/schimbate.",
+
+  "DESIGN_NAME": "pld_jupiter_512_top",
+  "VERILOG_FILES": ["./src/PLD_Top_512_Custom.v"],
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 20,
+  "PDK": "sky130A",
+
+  "//": "--- Astea raman neschimbate fata de TT ---",
+
+  "PL_TARGET_DENSITY_PCT": 60,
+  "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
+  "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
+  "RUN_LINTER": 1,
+  "LINTER_INCLUDE_PDK_MODELS": 1,
+  "GRT_ALLOW_CONGESTION": 1,
+  "RUN_CTS": 1,
+  "MAGIC_DEF_LABELS": 0,
+
+  "//": "--- Astea s-au SCOS fata de TT (erau specifice harness-ului lor) ---",
+  "//": "FP_SIZING absolute + DIE_AREA fix - TT calculează asta din numărul",
+  "//": "de tile-uri cumpărate. Fără harness TT, lăsăm floorplan-ul relativ,",
+  "//": "dimensionat automat din PL_TARGET_DENSITY_PCT de mai sus.",
+
+  "//": "TOP/BOTTOM/LEFT/RIGHT_MARGIN_MULT (LEFT/RIGHT erau 6x) - erau",
+  "//": "așa de mari ca să lase loc magistralei partajate TT până la marginea",
+  "//": "tile-ului. Chip standalone nu are nevoie de asta - margini normale.",
+
+  "//": "FP_PDN_VPITCH 38.87 - calculat să se alinieze cu grila fixă a",
+  "//": "tile-ului TT (167x108um). Floorplan-ul tău e alt size -> scos,",
+  "//": "las LibreLane să aleagă un pitch potrivit noii dimensiuni.",
+
+  "//": "FP_PDN_MULTILAYER 0 ('nu genera inele de alimentare') - TT nu are",
+  "//": "nevoie pentru că wrapper-ul lor partajat alimentează fiecare tile.",
+  "//": "Chip standalone chiar are nevoie de un PDN complet -> scos,",
+  "//": "las LibreLane să genereze rețeaua de alimentare normală.",
+
+  "//": "DESIGN_REPAIR_BUFFER_OUTPUT_PORTS 0 - dezactivat la TT ca să nu",
+  "//": "bufereze ieșirile spre wrapper-ul lor. Pe un chip cu paduri fizice",
+  "//": "reale chiar ai nevoie de buffer-e ca să atace sarcina padului -> scos.",
+
+  "//": "MAGIC_WRITE_LEF_PINONLY 1 - relevant doar când macro-ul tău e",
+  "//": "instanțiat în wrapper-ul altcuiva (cazul TT). Chip standalone -> scos.",
+
+  "//": "--- Astea s-au SCHIMBAT fata de TT ---",
+
+  "//": "RUN_KLAYOUT_XOR / RUN_KLAYOUT_DRC erau 0 ('economisește timp în CI'),",
+  "//": "pentru că TT rulează propriul DRC/LVS centralizat când asamblează",
+  "//": "waferul comun. Fără plasa lor de siguranță, ai nevoie de semnare",
+  "//": "DRC/XOR completă înainte să trimiți oriunde -> activate.",
+  "RUN_KLAYOUT_XOR": 1,
+  "RUN_KLAYOUT_DRC": 1,
+
+  "//": "FP_IO_HLENGTH/VLENGTH erau 2 (potrivite pinilor scurți din harness-ul",
+  "//": "TT). Mărite ușor pentru un floorplan cu rutare mai generoasă -",
+  "//": "prima valoare de pornire, ușor de ajustat dacă apar erori de rutare.",
+  "FP_IO_HLENGTH": 4,
+  "FP_IO_VLENGTH": 4
+}

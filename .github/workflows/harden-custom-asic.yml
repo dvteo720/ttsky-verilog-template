@@ -1,0 +1,47 @@
+name: harden-custom-asic
+
+# Ruleaza LibreLane complet (sinteza + place&route + CTS + DRC + LVS + GDS)
+# pe un runner GitHub gratuit, NU local. Pe repo public: 4 core / 16GB RAM,
+# ~14GB disc garantat - mult peste orice Docker Desktop local si peste
+# limita de 2.1GB intalnita local.
+#
+# Declansare manuala (butonul "Run workflow" din tab-ul Actions) sau
+# automat la push pe folderul custom-asic/.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "custom-asic/**"
+
+jobs:
+  harden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instaleaza LibreLane
+        run: python3 -m pip install --upgrade librelane
+
+      - name: Ruleaza flow-ul complet (dockerized - Docker e deja pe runner)
+        working-directory: custom-asic
+        run: librelane --dockerized config.json
+
+      - name: Urca GDSII + rapoarte de semnare ca artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pld-jupiter-512-gdsii
+          path: |
+            custom-asic/runs/**/final/**
+            custom-asic/runs/**/*.log
+          retention-days: 30
+          if-no-files-found: warn
