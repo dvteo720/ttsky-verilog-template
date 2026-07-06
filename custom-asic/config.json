@@ -40,6 +40,11 @@
   "RUN_LINTER": 1,
   "LINTER_INCLUDE_PDK_MODELS": 1,
   "GRT_ALLOW_CONGESTION": 1,
+
+  "//": "--- FIX pentru eroarea de heap underflow (Diode Insertion) ---",
+  "GRT_REPAIR_ANTENNAS": 0,
+  "RUN_HEURISTIC_DIODE_INSERTION": 1,
+
   "RUN_CTS": 1,
   "MAGIC_DEF_LABELS": 0,
 
