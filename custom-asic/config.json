@@ -11,17 +11,16 @@
   "CLOCK_PERIOD": 10,
   "PDK": "sky130A",
 
-  "//": "--- FIX DEFINITIV PENTRU SINTEZĂ (FĂRĂ BLOCAJ ȘI FĂRĂ EXPLOZIE DE INSTANȚE) ---",
-  "//": "Lăsăm normal procesul de flatten ca ABC să poată optimiza aria (evităm eroarea de 185%).",
-  "//": "Folosim ABC_RELAX_THREADS și ignorăm procesul greoi de evaluare a buclelor combinatorii.",
+  "//": "--- STRATEGIE SINTEZĂ ---",
   "SYNTH_NO_FLAT": 0,
   "SYNTH_FLAGS": "-abc9",
 
-  "//": "--- DIMENSIONARE FIZICĂ REALĂ ȘI SPATIOASĂ ---",
-  "//": "Mărim aria la 1500x1500um pentru a permite rutarea curată a celor 512 crossbar-uri.",
-  "FP_SIZING": "absolute",
-  "DIE_AREA": [0, 0, 1500, 1500],
-  "PL_TARGET_DENSITY_PCT": 35,
+  "//": "--- DIMENSIONARE AUTOMATĂ RECOMANATĂ (DPL-0036 FIX) ---",
+  "//": "Trecem pe 'relative' ca instrumentul să calculeze singur dimensiunea optimă.",
+  "//": "45% densitate strânge celulele destul cât să nu explodeze lungimea firelor,",
+  "//": "dar lasă spațiu ideal pentru miile de hold buffers.",
+  "FP_SIZING": "relative",
+  "PL_TARGET_DENSITY_PCT": 45,
 
   "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
   "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
@@ -29,7 +28,7 @@
   "LINTER_INCLUDE_PDK_MODELS": 1,
   "GRT_ALLOW_CONGESTION": 1,
 
-  "//": "--- FIX pentru eroarea de heap underflow (Diode Insertion) ---",
+  "//": "--- Antene & Diode ---",
   "GRT_REPAIR_ANTENNAS": 0,
   "RUN_HEURISTIC_DIODE_INSERTION": 1,
 
