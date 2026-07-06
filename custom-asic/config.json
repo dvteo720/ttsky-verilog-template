@@ -6,7 +6,15 @@
   "DESIGN_NAME": "pld_jupiter_512_top",
   "VERILOG_FILES": ["./src/PLD_Top_512_Custom.v"],
   "CLOCK_PORT": "clk",
-  "CLOCK_PERIOD": 20,
+
+  "//": "--- CLOCK_PERIOD dupa fix-ul de bypass din RTL ---",
+  "//": "Cu bypass-ul scos (le_out = dff_out mereu), path-ul cel mai lung",
+  "//": "posibil intre doua DFF-uri e UN SINGUR hop: DFF -> RoutingMux ->",
+  "//": "LUT4 -> DFF, nu un lant de pana la 512 LE-uri. 100ns e un punct de",
+  "//": "start conservator (de ~22x mai relaxat decat cei 4500ns necesari",
+  "//": "inainte de fix) - dupa runul asta, uita-te la WNS-ul real din",
+  "//": "raportul STA si strange CLOCK_PERIOD in jos daca a ramas slack.",
+  "CLOCK_PERIOD": 100,
   "PDK": "sky130A",
 
   "//": "--- FIX pentru hang-ul de sinteza (5h50m, log 2.4GB) ---",

@@ -114,7 +114,15 @@ module LogicElement (
         .q   (dff_out)
     );
 
-    assign le_out = config_bits[16] ? lut_out : dff_out;
+    // MODIFICAT pentru viteza maxima: le_out e ÎNTOTDEAUNA inregistrat.
+    // config_bits[16] (fostul select de bypass) ramane in bitstream
+    // (aceeasi lungime totala, 18176 biti, acelasi shift register) dar
+    // e ignorat functional. Asta elimina ORICE cale combinationala
+    // LE-la-LE prin crossbar: fiecare hop e acum garantat inregistrat,
+    // deci path-ul cel mai lung intre doua DFF-uri e mereu exact
+    // DFF -> RoutingMux -> LUT4 -> DFF (UN SINGUR hop), nu un lant de
+    // pana la 512 LE-uri inlantuite combinational.
+    assign le_out = dff_out;
 endmodule
 
 // --------------------------------------------------------------------
