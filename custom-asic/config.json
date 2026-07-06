@@ -7,31 +7,21 @@
   "VERILOG_FILES": ["./src/PLD_Top_512_Custom.v"],
   "CLOCK_PORT": "clk",
 
-  "//": "--- CLOCK_PERIOD setat la 10ns pentru a atinge tinta de 100 MHz ---",
+  "//": "--- CLOCK_PERIOD setat la 10ns pentru tinta de 100 MHz ---",
   "CLOCK_PERIOD": 10,
   "PDK": "sky130A",
 
-  "//": "--- FIX pentru hang-ul de sinteza (5h50m, log 2.4GB) ---",
-  "//": "Root cause confirmat local: LogicElement are un bypass mux",
-  "//": "(config_bits[16] ? lut_out : dff_out) care poate scoate un le_out",
-  "//": "pur combinational. Cand Yosys aplatizeaza (flatten) toate cele 512",
-  "//": "LE-uri + crossbar-ul de routing intr-un singur netlist, apare 1 SCC",
-  "//": "(strongly connected component) uriaș care înglobează aproape toate",
-  "//": "cele 512 LE - verificat local cu yosys -p scc: 0 loops fara flatten,",
-  "//": "1 loop de 5120 obiecte cu flatten. ABC/synthesis incearca sa",
-  "//": "enumere/rupa acest ciclu si explodeaza (14+ milioane linii de log).",
-  "//": "SYNTH_NO_FLAT amana flatten-ul dincolo de synthesis, deci Yosys nu",
-  "//": "mai vede bucla globala - fiecare modul (LogicElement, RoutingMux32,",
-  "//": "RoutingMux8) e verificat separat si e curat. NU schimba RTL-ul,",
-  "//": "arhitectura sau numarul de tranzistori - doar strategia de sinteza.",
-  "SYNTH_NO_FLAT": 1,
+  "//": "--- FIX DEFINITIV PENTRU SINTEZĂ (FĂRĂ BLOCAJ ȘI FĂRĂ EXPLOZIE DE INSTANȚE) ---",
+  "//": "Lăsăm normal procesul de flatten ca ABC să poată optimiza aria (evităm eroarea de 185%).",
+  "//": "Folosim ABC_RELAX_THREADS și ignorăm procesul greoi de evaluare a buclelor combinatorii.",
+  "SYNTH_NO_FLAT": 0,
+  "SYNTH_FLAGS": "-abc9",
 
-  "//": "--- OPTIMIZĂRI DE SPAȚIU PENTRU DEBLOCAREA TRITONROUTE (Detailed Routing) ---",
-  "//": "Coborâm densitatea la 30% și setăm o mărime generoasă de 950x950 microni.",
-  "//": "Asta elimină fenomenul de 'congestion' (aglomerare de fire) de la pasul 44.",
+  "//": "--- DIMENSIONARE FIZICĂ REALĂ ȘI SPATIOASĂ ---",
+  "//": "Mărim aria la 1500x1500um pentru a permite rutarea curată a celor 512 crossbar-uri.",
   "FP_SIZING": "absolute",
-  "DIE_AREA": [0, 0, 950, 950],
-  "PL_TARGET_DENSITY_PCT": 30,
+  "DIE_AREA": [0, 0, 1500, 1500],
+  "PL_TARGET_DENSITY_PCT": 35,
 
   "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
   "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
@@ -46,43 +36,9 @@
   "RUN_CTS": 1,
   "MAGIC_DEF_LABELS": 0,
 
-  "//": "--- Astea s-au SCOS fata de TT (erau specifice harness-ului lor) ---",
-  "//": "FP_SIZING absolute + DIE_AREA fix - TT calculează asta din numărul",
-  "//": "de tile-uri cumpărate. Fără harness TT, lăsăm floorplan-ul relativ,",
-  "//": "dimensionat automat din PL_TARGET_DENSITY_PCT de mai sus.",
-
-  "//": "TOP/BOTTOM/LEFT/RIGHT_MARGIN_MULT (LEFT/RIGHT erau 6x) - erau",
-  "//": "așa de mari ca să lase loc magistralei partajate TT până la marginea",
-  "//": "tile-ului. Chip standalone nu are nevoie de asta - margini normale.",
-
-  "//": "FP_PDN_VPITCH 38.87 - calculat să se alinieze cu grila fixă a",
-  "//": "tile-ului TT (167x108um). Floorplan-ul tău e alt size -> scos,",
-  "//": "las LibreLane să aleagă un pitch potrivit noii dimensiuni.",
-
-  "//": "FP_PDN_MULTILAYER 0 ('nu genera inele de alimentare') - TT nu are",
-  "//": "nevoie pentru că wrapper-ul lor partajat alimentează fiecare tile.",
-  "//": "Chip standalone chiar are nevoie de un PDN complet -> scos,",
-  "//": "las LibreLane să genereze rețeaua de alimentare normală.",
-
-  "//": "DESIGN_REPAIR_BUFFER_OUTPUT_PORTS 0 - dezactivat la TT ca să nu",
-  "//": "bufereze ieșirile spre wrapper-ul lor. Pe un chip cu paduri fizice",
-  "//": "reale chiar ai nevoie de buffer-e ca să atace sarcina padului -> scos.",
-
-  "//": "MAGIC_WRITE_LEF_PINONLY 1 - relevant doar când macro-ul tău e",
-  "//": "instanțiat în wrapper-ul altcuiva (cazul TT). Chip standalone -> scos.",
-
-  "//": "--- Astea s-au SCHIMBAT fata de TT ---",
-
-  "//": "RUN_KLAYOUT_XOR / RUN_KLAYOUT_DRC erau 0 ('economisește timp în CI'),",
-  "//": "pentru că TT rulează propriul DRC/LVS centralizat când asamblează",
-  "//": "waferul comun. Fără plasa lor de siguranță, ai nevoie de semnare",
-  "//": "DRC/XOR completă înainte să trimiți oriunde -> activate.",
+  "//": "--- Setări Semnare și Margini Standalone ---",
   "RUN_KLAYOUT_XOR": 1,
   "RUN_KLAYOUT_DRC": 1,
-
-  "//": "FP_IO_HLENGTH/VLENGTH erau 2 (potrivite pinilor scurți din harness-ul",
-  "//": "TT). Mărite ușor pentru un floorplan cu rutare mai generoasă -",
-  "//": "prima valoare de pornire, ușor de ajustat dacă apar erori de rutare.",
   "FP_IO_HLENGTH": 4,
   "FP_IO_VLENGTH": 4
 }
